@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "BizForward Project",
-      "script": "./dist/src/main.js",
+      "script": "./dist/main.js",
       "merge_logs": true
     }
   ]

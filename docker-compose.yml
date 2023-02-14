@@ -21,9 +21,3 @@ services:
       TS_NODE_PROJECT: 1
     ports:
       - 8888:8888
-
-  test:
-    image: golang:1.18
-    volumes:
-      - ./main_test.go:/app/main_test.go
-    command: go run /app/main_test.go

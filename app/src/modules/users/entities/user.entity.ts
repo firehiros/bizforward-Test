@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Transaction } from '@/modules/transactions/entities/transaction.entity';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: string;

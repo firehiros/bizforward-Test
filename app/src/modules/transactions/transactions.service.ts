@@ -1,12 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
-import { CreateTransactionDto } from './dto/create.dto';
-
-import { Transaction } from './entities/transaction.entity';
 import { MESSAGES } from '@/helpers/messages';
 import { RECORDS_LIMIT } from '@/helpers/constants';
+import { User } from '@/modules//users/entities/user.entity';
+import { CreateTransactionDto } from './dto/create.dto';
+import { Transaction } from './entities/transaction.entity';
 
 @Injectable()
 export class TransactionService {
@@ -15,21 +14,31 @@ export class TransactionService {
     private readonly transactionRepo: Repository<Transaction>,
   ) {}
 
-  async create(dto: CreateTransactionDto) {
+  async create(dto: CreateTransactionDto, user: User) {
     try {
-      const [records, numRecords] = await this.transactionRepo.findAndCount();
-      if (numRecords >= RECORDS_LIMIT) {
+      const result = await this.transactionRepo
+        .createQueryBuilder('transactions')
+        .select('SUM(transactions.amount)', 'totalAmount')
+        .where({ user })
+        .getRawOne();
+
+      if (result?.totalAmount >= RECORDS_LIMIT) {
         throw new HttpException(
           MESSAGES.MGS_RECORDS_LIMIT,
-          HttpStatus.BAD_REQUEST,
+          HttpStatus.PAYMENT_REQUIRED,
         );
       }
+
       const transaction = await this.transactionRepo.save({
         ...dto,
+        user,
       });
       return transaction;
     } catch (e) {
-      throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        e.message,
+        e.getStatus() || HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
