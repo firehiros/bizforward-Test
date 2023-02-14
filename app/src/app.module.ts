@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-
 import { LoggerMiddleware } from '@/helpers/middlewares/logger.middleware';
 import { typeOrmConfig } from '@/configs/db.config';
 import { TransactionModule } from '@/modules/transactions/transactions.module';

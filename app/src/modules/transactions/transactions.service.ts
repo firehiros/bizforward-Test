@@ -18,11 +18,13 @@ export class TransactionService {
     try {
       const result = await this.transactionRepo
         .createQueryBuilder('transactions')
+        .setLock('pessimistic_write')
         .select('SUM(transactions.amount)', 'totalAmount')
         .where({ user })
         .getRawOne();
 
-      if (result?.totalAmount >= RECORDS_LIMIT) {
+      const newTotal = Number(result?.totalAmount || 0) + Number(dto.amount);
+      if (newTotal > RECORDS_LIMIT) {
         throw new HttpException(
           MESSAGES.MGS_RECORDS_LIMIT,
           HttpStatus.PAYMENT_REQUIRED,
@@ -33,6 +35,7 @@ export class TransactionService {
         ...dto,
         user,
       });
+
       return transaction;
     } catch (e) {
       throw new HttpException(
